@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="src/output.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+      [x-cloak] {
+        display: none !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    
+    <div x-data="carousel" class="relative">
+      <div x-ref="track" class="grid grid-cols-4 gap-4 p-4 snap-x snap-mandatory scroll-px-4 overflow-x-scroll scrollbar-hide max-md:flex max-md:*:w-5/6">
+        <div class="rounded bg-slate-200 flex-shrink-0 h-40 snap-start">Card</div>
+        <div class="rounded bg-slate-200 flex-shrink-0 h-40 snap-start">Card</div>
+        <div class="rounded bg-slate-200 flex-shrink-0 h-40 snap-start">Card</div>
+        <div class="rounded bg-slate-200 flex-shrink-0 h-40 snap-start">Card</div>
+        <div class="rounded bg-slate-200 flex-shrink-0 h-40 snap-start">Card</div>
+        <div class="rounded bg-slate-200 flex-shrink-0 h-40 snap-start">Card</div>
+      </div>
+
+      <button x-on:click="prev" :disabled="! arrows.previous" class="md:hidden absolute left-0 top-1/2 -translate-y-1/2 z-10 px-4 py-2 rounded-full bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed">
+        &lt;
+      </button>
+      <button x-on:click="next" :disabled="! arrows.next" class="md:hidden absolute right-0 top-1/2 -translate-y-1/2 z-10 px-4 py-2 rounded-full bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed">
+        &gt;
+      </button>
+
+      <nav class="md:hidden absolute -bottom-8 left-1/2 -translate-x-1/2">
+        <ul class="flex gap-2">
+          <template x-for="(paginator, index) in paginators">
+            <li>
+              <button x-on:click="scrollTo(index)" :disabled="index === currentSlide" class="w-4 h-4 rounded-full bg-slate-300 opacity-50 disabled:opacity-100 disabled:cursor-not-allowed"></button>
+            </li>
+          </template>
+        </ul>
+      </nav>
+    </div>
+
+    <script>
+      window.addEventListener('alpine:init', () => {
+        Alpine.data('carousel', () => ({
+          scrollLeft: 0,
+
+          get slides() {
+            return Array.from(this.$refs.track.children);
+          },
+
+          get arrows() {
+            return {
+              previous: this.currentSlide > 0,
+              next: this.currentSlide < this.maxSlides - 1
+            }
+          },
+
+          get paginators() {
+            return Array.from({ length: this.maxSlides }).map((_, index) => {
+              return index === this.currentSlide
+            });
+          },
+
+          get currentSlide() {
+            return Math.round(
+              this.scrollLeft / (this.$refs.track.scrollWidth / this.maxSlides)
+            )
+          },
+
+          get maxSlides() {
+            return this.slides.length
+          },
+
+          next() {
+            this.scrollTo(this.currentSlide + 1);
+          },
+
+          prev() {
+            this.scrollTo(this.currentSlide - 1);
+          },
+
+          scrollTo(index) {
+            this.$refs.track.scrollTo({
+              left: this.slides[index].offsetLeft,
+              behavior: 'smooth'
+            });
+          },
+
+          init() {
+            this.$refs.track.addEventListener('scroll', () => {
+              this.scrollLeft = this.$refs.track.scrollLeft;
+            });
+          }
+        }));
+      });
+    </script>
+
+  </body>
+
+</html>

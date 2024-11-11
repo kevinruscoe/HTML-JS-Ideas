@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="src/output.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+      [x-cloak] {
+        display: none !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Fading Hero</h1>
+    <div class="grid" x-data="slide_a">
+      <div class="area-full" x-transition.opacity.duration.1000ms x-show="isVisible">1</div>
+      <div class="area-full opacity-0" x-transition.opacity.duration.1000ms x-show="isVisible">2</div>
+      <div class="area-full opacity-0" x-transition.opacity.duration.1000ms x-show="isVisible">3</div>
+    </div>
+    <script>
+      window.addEventListener('alpine:init', () => {
+        Alpine.data('slide_a', () => ({
+          currentSlide: 0,
+
+          get slides() {
+            return Array.from(this.$el.querySelectorAll('.area-full'))
+          },
+
+          interval: 2000,
+
+          auto: true,
+
+          init() {
+            this.slides.forEach((slide, index) => {
+              slide.dataset.slideIndex = index;
+            });
+
+            setTimeout(() => {
+              this.next();
+            }, this.interval);
+          },
+
+          next() {
+            this.currentSlide = this.currentSlide == this.slides.length - 1 ?
+              0 : this.currentSlide + 1;
+
+            if (this.auto) {
+              setTimeout(() => {
+                this.next();
+              }, this.interval);
+            }
+          },
+
+          prev() {
+            this.currentSlide = this.currentSlide == 0 ?
+              this.slides.length - 1 : this.currentSlide - 1;
+          },
+
+          isVisible() {
+            return this.$el.dataset.slideIndex == this.currentSlide
+          },
+        }));
+      });
+    </script>
+  </body>
+
+</html>

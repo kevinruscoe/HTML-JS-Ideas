@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="dist/main.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+      [x-cloak] {
+        display: none !important;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <section class="bg-slate-200 p-4 flex justify-between">
+      <nav class="[&_a:hover]:underline hidden md:flex">
+        <ul class="flex gap-4 *:relative">
+          <li>
+            <a href="#">
+              Home
+            </a>
+          </li>
+          <li class="group">
+            <a href="#">
+              About
+            </a>
+  
+            <ul class="absolute bg-slate-300 whitespace-nowrap py-4 *:px-4 hidden group-hover:block *:relative">
+              <li>
+                <a href="#">
+                  About 1
+                </a>
+              </li>
+              <li class="group/about">
+                <a href="#">
+                  About 2
+                </a>
+  
+                <ul class="absolute left-full top-0 bg-slate-300 whitespace-nowrap p-4 hidden group-hover/about:block *:relative">
+                  <li>
+                    <a href="#">
+                      About 2.1
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      About 2.2
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <a href="#">
+                  About 3
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <a href="#">
+              Contact
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <button class="md:hidden ml-auto" x-data x-on:click="$dispatch('toggle-menu')">Menu</button>
+    </section>
+
+
+    <footer>
+      <nav x-data="menu" class="overflow-x-hidden md:!hidden" x-cloak x-show="open" x-on:toggle-menu.window="open = !open">
+        <ul class="flex flex-col relative transition-transform" x-bind:style="menuStyle">
+          <template x-for="item in menu">
+            <li class="w-full shrink-0 flex justify-between p-4">
+              <a :href="item.url">
+                <span x-text="item.name"></span>
+              </a>
+
+              <button x-show="item.children" x-on:click="openItem(item)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+              </button>
+
+              <template x-if="item.children && item.open">
+                <ul class="absolute top-0 left-full w-full">
+                  <li class="w-full shrink-0 flex justify-between p-4">
+                    <button class="flex w-full" x-on:click="closeItem(item)">
+                      Back
+                    </button>
+                  </li>
+
+                  <template x-for="child in item.children">
+                    <li class="w-full shrink-0 flex justify-between p-4">
+                      <a :href="child.url">
+                        <span x-text="child.name"></span>
+                      </a>
+
+                      <button x-show="child.children" x-on:click="openItem(child)">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        </svg>
+                      </button>
+
+                      <template x-if="child.children && child.open">
+                        <ul class="absolute top-0 left-full w-full">
+                          <li class="w-full shrink-0 flex justify-between p-4">
+                            <button class="flex w-full" x-on:click="closeItem(child)">
+                              Back
+                            </button>
+                          </li>
+                          <template x-for="grandchild in child.children">
+                            <li class="w-full shrink-0 flex justify-between p-4">
+                              <a :href="grandchild.url">
+                                <span x-text="grandchild.name"></span>
+                              </a>
+                            </li>
+                          </template>
+                        </ul>
+                      </template>
+                    </li>
+                  </template>
+                </ul>
+              </template>
+            </li>
+          </template>
+        </ul>
+      </nav>
+    </footer>
+
+    <script>
+      window.addEventListener('alpine:init', () => {
+        Alpine.data('menu', () => ({
+          open: false,
+          menu: [
+            {
+              name: 'Home',
+              url: '#'
+            },
+            {
+              name: 'About',
+              url: '#',
+              children: [
+                {
+                  name: 'About 1',
+                  url: '#'
+                },
+                {
+                  name: 'About 2',
+                  url: '#',
+                  children: [
+                    {
+                      name: 'About 2.1',
+                      url: '#'
+                    },
+                    {
+                      name: 'About 2.2',
+                      url: '#'
+                    }
+                  ]
+                },
+                {
+                  name: 'About 3',
+                  url: '#'
+                }
+              ]
+            },
+            {
+              name: 'Contact',
+              url: '#',
+              children: [
+                {
+                  name: 'Contact 1',
+                  url: '#'
+                },
+                {
+                  name: 'Contact 2',
+                  url: '#'
+                }
+              ]
+            }
+          ],
+          level: 0,
+          openItem(item) {
+            item.open = !item.open
+            this.level++
+          },
+          closeItem(item) {
+            item.open = false
+            this.level--
+          },
+          get menuStyle() {
+            return `transform: translateX(-${this.level * 100}%)`
+          }
+        }))
+      })
+    </script>
+
+  </body>
+</html>
